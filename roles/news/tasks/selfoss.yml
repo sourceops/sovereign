@@ -2,6 +2,7 @@
   git: repo=https://github.com/SSilence/selfoss.git
        dest=/var/www/selfoss
        accept_hostkey=yes
+       version={{ selfoss_version }}
 
 - name: Set selfoss ownership
   action: file owner=root group=www-data path=/var/www/selfoss recurse=yes state=directory
@@ -33,7 +34,7 @@
   postgresql_db: login_host=localhost login_user={{ db_admin_username }} login_password="{{ db_admin_password }}" name={{ selfoss_db_database }} state=present owner={{ selfoss_db_username }}
 
 - name: Install selfoss config.ini
-  template: src=var_www_selfoss_config.ini.j2 dest=/var/www/selfoss/config.ini group=www-data owner=root
+  template: src=var_www_selfoss_config.ini.j2 dest=/var/www/selfoss/config.ini group=www-data owner=root mode=0640
 
 - name: Enable Apache rewrite module
   command: a2enmod rewrite creates=/etc/apache2/mods-enabled/rewrite.load
@@ -51,7 +52,7 @@
   command: mv /etc/apache2/sites-available/selfoss /etc/apache2/sites-available/selfoss.conf removes=/etc/apache2/sites-available/selfoss
 
 - name: Remove old sites-enabled/selfoss symlink (new one will be created by a2ensite)
-  command: rm /etc/apache2/sites-enabled/selfoss removes=/etc/apache2/sites-enabled/selfoss
+  file: path=/etc/apache2/sites-enabled/selfoss state=absent
 
 - name: Configure the Apache HTTP server for selfoss
   template: src=etc_apache2_sites-available_selfoss.j2 dest=/etc/apache2/sites-available/selfoss.conf group=root owner=root

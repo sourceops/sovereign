@@ -1,5 +1,9 @@
-- name: Install OpenDMARC milter
-  apt: pkg=opendmarc state=installed update_cache=yes
+- name: Install OpenDMARC milter and related packages
+  apt: pkg={{ item }} state=installed update_cache=yes
+  with_items:
+      - mysql-server
+      - python-mysqldb
+      - opendmarc
 
 - name: Copy OpenDMARC configuration file into place
   template: src=etc_opendmarc.conf.j2 dest=/etc/opendmarc.conf owner=root group=root
@@ -32,6 +36,9 @@
 
 - name: Copy nightly OpenDMARC report generation script into place
   template: src=etc_opendmarc_report.sh.j2 dest=/etc/opendmarc/report.sh owner=root group=root mode="755"
+
+- name: Touch initial report dat file with correct permissions
+  file: path=/var/run/opendmarc/opendmarc.dat state=touch owner=opendmarc group=opendmarc
 
 - name: Activate OpenDMARC report cronjob
   cron: name="OpenDMARC report" hour="2" minute="0" job="/bin/bash /etc/opendmarc/report.sh >> /var/log/opendmarc_report.log"

@@ -51,7 +51,7 @@ smtp_tls_note_starttls_offer = yes
 smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 # http://www.postfix.org/FORWARD_SECRECY_README.html
 smtp_tls_ciphers = medium
-
+smtpd_tls_dh1024_param_file = /etc/ssl/private/dhparam2048.pem
 
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
@@ -91,7 +91,9 @@ recipient_delimiter = +
 inet_interfaces = all
 
 # dovecot db
-virtual_transport = dovecot
+virtual_transport = lmtp:unix:private/dovecot-lmtp
+mailbox_transport = lmtp:unix:private/dovecot-lmtp
+
 dovecot_destination_recipient_limit = 1
 virtual_mailbox_domains = pgsql:/etc/postfix/pgsql-virtual-mailbox-domains.cf
 virtual_mailbox_maps = pgsql:/etc/postfix/pgsql-virtual-mailbox-maps.cf
